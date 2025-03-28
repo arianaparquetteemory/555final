@@ -1,0 +1,148 @@
+---
+title: "GI Transit Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: scroll
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(flexdashboard)
+library(shiny)
+library(plotly)
+library(ggplot2)
+library(crosstalk)
+library(DT)
+library(readr)
+library(readxl)
+library(table1)
+library(ggplot2)
+library(readxl)
+library(magrittr)
+library(tidyverse)
+library(dplyr)
+library(crosstalk)
+# Example dataset (replace with your actual data)
+gidxa <- read_excel("clean_data/71824Parquette.xlsx")
+
+#factor
+gidxa$get_min<-as.numeric(gidxa$get_min)
+gidxa$ctt_min_tot<-as.numeric(gidxa$ctt_min_tot)
+gidxa$get_categories<-cut(gidxa$get_min, breaks = c(-Inf, 60, 240, Inf),
+                          labels = c(">1 hour", "1-4 hours", "<4 hours"))
+gidxa$ctt_categories<-cut(gidxa$ctt_min_tot, breaks = c(-Inf, 720, 3560, Inf),
+                          labels = c(">12 hours", "12-59 hours", "<59 hours"))
+gidxa$wgtt_categories<-cut(gidxa$wgtt_tot_min, breaks = c(-Inf, 600, 4320, Inf),
+                           labels = c( "Rapid", "Normal", "Delayed"))
+gidxa$gender<-factor(gidxa$gender, 
+                     levels = c("F", "M"),
+                     labels =  c("Female", "Male"))
+#label variables for increased clarity
+label(gidxa$age)<- "Age"
+label(gidxa$gender)<- "Gender"
+label(gidxa$race)<- "Race"
+label(gidxa$avg_wc)<- "Waist Circumference"
+label(gidxa$bmi)<- "Body Mass Index"
+label(gidxa$bl_dxa_mass)<- "Body Mass"
+label(gidxa$bl_dxa_vatmass)<- "Visceral Adipose Tissue Mass"
+label(gidxa$bl_dxa_vatvol)<- "Visceral Adipose Tissue Volume"
+label(gidxa$MVPA_wk)<- "Moderate-Vigorous Physical Activity"
+label(gidxa$get_categories) <- "Gastric Emptying Time"
+label(gidxa$ctt_categories) <- " Colonic Transit Time"
+label(gidxa$wgtt_categories) <- " Whole Gut Transit Time"
+label(gidxa$dxa_fat_p) <- " Total Fat Percentage"
+
+# attach necessary units
+units(gidxa$age)       <- "years"
+units(gidxa$avg_wc) <- "cm"
+units(gidxa$bl_dxa_mass)       <- "lbs"
+units(gidxa$bl_dxa_vatmass) <- "lbs"
+units(gidxa$bl_dxa_vatvol) <- "in^3"
+units(gidxa$MVPA_wk) <- "MET-hrs/wk"
+units(gidxa$dxa_fat_p) <- "%"
+
+gidxa$get_min<-as.numeric(gidxa$get_min)
+gidxa$ctt_min_tot<-as.numeric(gidxa$ctt_min_tot)
+
+#factor bmi
+gidxa$bmi_categories<-cut(gidxa$bmi, breaks = c(-Inf, 30, 35, Inf),
+                          labels = c("Overweight", "Class 1 Obesity", "Class 2 Obesity"))
+
+
+# Load Data (Ensure gidxa dataset is available)
+# gidxa <- read.csv("your_data.csv")
+shared_df <- SharedData$new(gidxa, group = "GI_data")
+```
+
+Row 
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+fluidRow(
+  column(6, filter_select("select_gender", "Select Gender", shared_df, ~gender)),
+  column(6, filter_select("select_bmi", "Select BMI Category", shared_df, ~bmi_categories))
+)
+
+renderPlotly({
+  p <- ggplot(shared_df, aes(x = get_min, y = dxa_fat_p, color = gender)) +
+    geom_point(alpha = 0.7, size = 3) +
+    facet_wrap(~bmi_categories) +
+    labs(title = "GI Transit Time vs Body Fat Percentage",
+         x = "GI Transit Time (Minutes)",
+         y = "Body Fat Percentage",
+         color = "Gender") +
+    theme_minimal(base_size = 14) +
+    theme(legend.position = "top")
+  
+  ggplotly(p, tooltip = c("x", "y", "color")) %>%
+    highlight("plotly_selected")
+})
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+renderPlotly({
+  plot_ly(gidxa, x = ~gender, y = ~get_min, type = 'box', 
+          boxpoints = "outliers", jitter = 0.3, 
+          pointpos = -1.8, marker = list(color = 'rgba(7, 164, 181, 0.5)'),
+          name = "Transit Time Distribution") %>%
+    add_trace(type = 'scatter', mode = 'markers',
+              x = ~gender, y = ~get_min,
+              marker = list(size = 8, opacity = 0.7, 
+                            color = ~ifelse(gender == "Female", '#E377C2', '#3E07A2')),
+              hoverinfo = "text",
+              text = ~paste("Gender:", gender, "<br>Transit Time:", get_min)) %>%
+    layout(
+      title = "Gastric Emptying Time by Gender",
+      xaxis = list(title = "Gender", tickfont = list(size = 14)),
+      yaxis = list(title = "Transit Time (minutes)", tickfont = list(size = 14)),
+      boxmode = "group",
+      hovermode = "closest"
+    )
+})
+```
+
+### Chart C
+
+```{r}
+renderPlotly({
+  plot_ly(gidxa, x = ~bmi_categories, y = ~get_min, type = 'box', 
+          boxpoints = "outliers", jitter = 0.3, 
+          pointpos = -1.8, marker = list(color = 'rgba(255, 127, 14, 0.5)')) %>%
+    layout(
+      title = "Gastric Emptying Time by BMI Category",
+      xaxis = list(title = "BMI Category", tickfont = list(size = 14)),
+      yaxis = list(title = "Transit Time (minutes)", tickfont = list(size = 14)),
+      hovermode = "closest"
+    )
+})
+```
+
