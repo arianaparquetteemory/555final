@@ -19,13 +19,13 @@ output:
   overflow-y: auto;
   z-index: 9999;
   background-color: #f8f9fa;
-  padding-right: 1000px;  /* Adjust padding */
+  padding-right: 100px;  /* Adjust padding */
   border-right: 1px solid #ddd;
 }
 
 /* Shift main content to the right */
 .main {
-  margin-left: 600px !important;   /* Ensure the main content is shifted properly */
+  margin-left: 300px !important;   /* Ensure the main content is shifted properly */
   padding: 10px;  /* Adjust padding for better layout */
 }
 </style>
@@ -73,6 +73,7 @@ Description
 This dashboard explores how **gastrointestinal (GI) transit times** relate to **body composition** and **gender/BMI differences**.
 
 The data set is confidential data as collected by a clinical feeding trial. These data was collected between 2021 and 2024 at the Georgia Clinical and Translational Science Association in collaboration with Emory University in adults aged 40-75 with a history of colon polyps within the past 3 years. 
+
 
  Gastric Emptying Time
 =====================================
@@ -165,7 +166,7 @@ Row
 
 ### Sidebar {.sidebar}
 ```{r}
-filter_slider("ctt_min_tot", "Colonic Transit Time (min)", shared_df, ~get_min)
+filter_slider("ctt_min_tot", "Colonic Transit Time (min)", shared_df, ~ctt_min_tot)
 filter_select("gender", "Gender", shared_df, ~gender)
 filter_select("bmi_categories", "BMI Category", shared_df, ~bmi_categories)
 
@@ -245,7 +246,7 @@ Row
 
 ### Sidebar {.sidebar}
 ```{r}
-filter_slider("wgtt_tot_min", "Whole Gut Transit Time (min)", shared_df, ~get_min)
+filter_slider("wgtt_tot_min", "Whole Gut Transit Time (min)", shared_df, ~wgtt_tot_min)
 filter_select("gender", "Gender", shared_df, ~gender)
 filter_select("bmi_categories", "BMI Category", shared_df, ~bmi_categories)
 
