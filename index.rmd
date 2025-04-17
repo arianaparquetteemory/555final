@@ -7,25 +7,6 @@ output:
     theme: cosmo
 ---
 
-<style>
-.sidebar {
-  width: 200px !important;
-  position: fixed !important;
-  left: 0;
-  top: 60px;
-  bottom: 0;
-  overflow-y: auto;
-  z-index: 9999;
-  background-color: #f8f9fa;
-  padding-right: 10px;
-  border-right: 1px solid #ddd;
-}
-.main {
-  margin-left: 250px !important;
-  padding: 10px;
-}
-</style>
-
 ```{r setup, include=FALSE}
 library(flexdashboard)
 library(plotly)
@@ -65,18 +46,31 @@ Description
 
 This dashboard explores how **gastrointestinal (GI) transit times** relate to **body composition** and **gender/BMI differences**.
 
+### Data Set
+This project uses Smart Pill Gastric motility device and Dual-Energy X-ray Absoptiometry data from the Legume Diet Feeding Study (the data is confidential at this time), which has 60 participants, 30 of which completed the Smart Pill assessment at Baseline. Key variables include Gastric Emptying Time (hh:mm:ss), Colonic Transit Time (hh:mm:ss),, Whole Gut Transit time (hh:mm:ss), Visceral Adipose Tissue (KG), Android-Gynoid Ratio, Waist Circumference (CM),  Moderate-vigorous physical Activity (MET-hours, weekly), age, gender, and race. The study population included men and women between the ages of 40 to 75 years and in relatively good health who participated in a 12-month clinical trial. To meet eligibility, participants were required to have had a history of at least one pre-cancerous colon polyp within the previous 3 years, a BMI ≥ 25 kg/m2 and ≤ 40 kg/m2 and no history of chronic gastrointestinal disease, colorectal cancer, or gastrointestinal surgery.
+
+### Real World Impact And Importance of Dashboard
+This data is relevant as all the above variables have implications in colorectal cancer and metabolic syndrome outcomes. These outcomes may help inform health initiatives as related to fiber intake and nutrition guidelines for the purposes of weight management and colorectal cancer. 
+
 Gastric Emptying Time
 =====================================
 
-Row {.tabset}
+Column {.sidebar}
 ------------------------------------------------------------------------
 
-### Sidebar {.sidebar}
 ```{r}
 filter_slider("get_min", "Gastric Emptying Time (min)", shared_df, ~get_min)
 filter_select("gender", "Gender", shared_df, ~gender)
 filter_select("bmi_categories", "BMI Category", shared_df, ~bmi_categories)
 ```
+
+### Key Takeaways
+
+Gender: There is greater variation in gastric emptying time in men as compared to female counterparts, however middling times are similar.
+
+BMI class: Gastric Emptying time varies more among those who are considered "Class 2 Obese" with a bmi of 35-40 kg/m^2 as compared to their overweight(25-29 kg/m^2) and Class 1 obese (30-34kg/m^2) counterparts. Middling values were similar overall. 
+
+Body Fat Percentage: Men had lower body fat in general, which is to be expected. Those with a higher BMI were more likely, but no necessarily, to have a higher body fat percentage. There appears to be little correlation between transit time and overall body fat percentage
 
 Row
 ------------------------------------------------------------------------
@@ -98,6 +92,7 @@ plot_ly(shared_df, x = ~bmi_categories, y = ~get_min, type = 'box', color = ~bmi
          xaxis = list(title = "BMI Category"),
          yaxis = list(title = "Time (minutes)"))
 ```
+
 
 Row
 ------------------------------------------------------------------------
@@ -121,15 +116,22 @@ ggplotly(p, tooltip = c("x", "y", "color")) %>%
 Colonic Transit Time
 =====================================
 
-Row
+Column {.sidebar}
 ------------------------------------------------------------------------
 
-### Sidebar {.sidebar}
 ```{r}
 filter_slider("ctt_min_tot", "Colonic Transit Time (min)", shared_df, ~ctt_min_tot)
 filter_select("gender", "Gender", shared_df, ~gender)
 filter_select("bmi_categories", "BMI Category", shared_df, ~bmi_categories)
 ```
+
+### Key Takeaways
+
+Gender: There is greater variation in colonic transit time in women as compared to male counterparts. Median values for colonic transit time are longer in women. 
+
+BMI class: Colonic transit time varies more among those who are considered "Class 2 Obese" with a bmi of 35-40 kg/m^2 as compared to their overweight(25-29 kg/m^2) and Class 1 obese (30-34kg/m^2) counterparts. Median was longest in class 2 obesity.
+
+Body Fat Percentage: Men had lower body fat in general, which is to be expected. Those with a higher BMI were more likely, but no necessarily, to have a higher body fat percentage. There appears to be little correlation between transit time and overall body fat percentage
 
 Column {width=6}
 ------------------------------------------------------------------------
@@ -143,6 +145,17 @@ plot_ly(shared_df, x = ~gender, y = ~ctt_min_tot, type = 'box', color = ~gender,
          yaxis = list(title = "Time (minutes)"))
 ```
 
+### Colonic Transit & BMI
+```{r}
+plot_ly(shared_df, x = ~bmi_categories, y = ~ctt_min_tot, type = 'box', color = ~bmi_categories,
+        colors = c("#FF7F0E", "#2CA02C", "#9467BD")) %>%
+  layout(title = "Colonic Transit Time by BMI Category",
+         xaxis = list(title = "BMI Category"),
+         yaxis = list(title = "Time (minutes)"))
+```
+
+Column
+------------------------------------------------------------------------
 ### Colonic Transit Time & Body Fat %
 ```{r}
 p <- ggplot(shared_df, aes(x = ctt_min_tot, y = dxa_fat_p, color = gender)) +
@@ -159,30 +172,25 @@ ggplotly(p, tooltip = c("x", "y", "color")) %>%
   config(displayModeBar = FALSE)
 ```
 
-Column
-------------------------------------------------------------------------
-
-### Colonic Transit & BMI
-```{r}
-plot_ly(shared_df, x = ~bmi_categories, y = ~ctt_min_tot, type = 'box', color = ~bmi_categories,
-        colors = c("#FF7F0E", "#2CA02C", "#9467BD")) %>%
-  layout(title = "Colonic Transit Time by BMI Category",
-         xaxis = list(title = "BMI Category"),
-         yaxis = list(title = "Time (minutes)"))
-```
-
 Whole Gut Transit Time
 =====================================
 
-Row
+Column {.sidebar}
 ------------------------------------------------------------------------
 
-### Sidebar {.sidebar}
 ```{r}
 filter_slider("wgtt_tot_min", "Whole Gut Transit Time (min)", shared_df, ~wgtt_tot_min)
 filter_select("gender", "Gender", shared_df, ~gender)
 filter_select("bmi_categories", "BMI Category", shared_df, ~bmi_categories)
 ```
+
+### Key Takeaways
+
+Gender: There is greater variation in Whole gut transit in women as compared to male counterparts. Median values for colonic transit time are longer in women. 
+
+BMI class: Whoel Gut transit time varies more among those who are considered overweight(25-29 kg/m^2) as compared to their Class 1 and 2 obese (30-40kg/m^2) counterparts.
+
+Body Fat Percentage: Men had lower body fat in general, which is to be expected. Those with a higher BMI were more likely, but no necessarily, to have a higher body fat percentage. There appears to be little correlation between transit time and overall body fat percentage
 
 Column
 ------------------------------------------------------------------------
@@ -195,6 +203,19 @@ plot_ly(shared_df, x = ~gender, y = ~wgtt_tot_min, type = 'box', color = ~gender
          xaxis = list(title = "Gender"),
          yaxis = list(title = "Time (minutes)"))
 ```
+
+### WGTT & BMI
+```{r}
+plot_ly(shared_df, x = ~bmi_categories, y = ~wgtt_tot_min, type = 'box', color = ~bmi_categories,
+        colors = c("#FF7F0E", "#2CA02C", "#9467BD")) %>%
+  layout(title = "Whole Gut Transit Time by BMI Category",
+         xaxis = list(title = "BMI Category"),
+         yaxis = list(title = "Time (minutes)"))
+```
+
+
+Column
+------------------------------------------------------------------------
 
 ### Whole Gut Transit Time & Body Fat %
 ```{r}
@@ -212,13 +233,3 @@ ggplotly(p, tooltip = c("x", "y", "color")) %>%
   config(displayModeBar = FALSE)
 ```
 
-Column
-------------------------------------------------------------------------
-
-### WGTT & BMI
-```{r}
-plot_ly(shared_df, x = ~bmi_categories, y = ~wgtt_tot_min, type = 'box', color = ~bmi_categories,
-        colors = c("#FF7F0E", "#2CA02C", "#9467BD")) %>%
-  layout(title = "Whole Gut Transit Time by BMI Category",
-         xaxis = list(title = "BMI Category"),
-         yaxis = list(title = "Time (minutes)"))
