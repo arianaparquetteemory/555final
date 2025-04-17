@@ -18,3 +18,8 @@ This project uses Smart Pill Gastric motility device and Dual-Energy X-ray Absop
 ### Real World Impact And Importance of Dashboard
 This data is relevant as all the above variables have implications in colorectal cancer and metabolic syndrome outcomes. These outcomes may help inform health initiatives as related to fiber intake and nutrition guidelines for the purposes of weight management and colorectal cancer. 
 
+### Repo Structure 
+
+`index.rmd` is the flex dashboard RMD that includes all the code for the graphs. Knit to flex dashboard format. 
+
+`clean_data/71824Parquette` is the cleaned dataset
